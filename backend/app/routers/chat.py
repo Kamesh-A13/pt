@@ -10,6 +10,7 @@ Features:
 """
 
 import os
+import re
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel, Field
@@ -22,6 +23,29 @@ from app.services.vector_store import VectorStore
 router = APIRouter()
 
 SIMILARITY_THRESHOLD = float(os.getenv("SIMILARITY_THRESHOLD", "0.30"))
+
+
+def _detect_conversational_intent(msg: str) -> Optional[str]:
+    m = msg.lower().strip()
+    # Greetings
+    if re.search(r"^(hi|hello|hey|greetings|good\s+(morning|afternoon|evening))\b", m) and len(m.split()) <= 6:
+        return "greeting"
+    # Time to complete
+    if any(phrase in m for phrase in [
+        "how much time", "how long will it take", "how long to", "time will it take",
+        "time to complete", "completion time", "how many hours", "time required",
+        "how long does it take", "how much time to complete", "how much time to finish"
+    ]):
+        return "time_estimate"
+    # How to study simple
+    if any(phrase in m for phrase in [
+        "how to study it simple", "how to study simple", "how to study simply",
+        "how should i study", "simple way to study", "easy way to study",
+        "how to study this", "how to learn simply", "study it simple",
+        "explain simply how to study", "best way to study", "how to study"
+    ]):
+        return "study_simple"
+    return None
 
 
 def get_session_id(
@@ -112,6 +136,68 @@ async def chat_endpoint(
         history_str += f"{role.capitalize()}: {content}\n"
     if not history_str:
         history_str = "No prior messages."
+
+    # --------------------------------------------------------------------------
+    # Check for Conversational / Meta-Study Intents (Greetings, Time, Methods)
+    # --------------------------------------------------------------------------
+    intent = _detect_conversational_intent(req.message)
+    if intent == "greeting":
+        doc_note = f"Your document '{req.doc_id}' is loaded and ready for questions." if req.doc_id else "I am ready to help you study any subject or uploaded notes."
+        return {
+            "response": (
+                f"👋 **Hello! Welcome to StudyOS AI!**\n\n"
+                f"{doc_note}\n\n"
+                f"Here are a few quick ways we can learn together:\n"
+                f"• ⏱️ Ask *\"How much time will it take to complete?\"* for an estimated study schedule.\n"
+                f"• 💡 Ask *\"How to study it simple?\"* for an easy step-by-step study method.\n"
+                f"• 📝 Ask for a summary or key takeaways from the material.\n"
+                f"• 🎯 Take a quick practice quiz in the **Quiz Generator** tab.\n\n"
+                f"What would you like to focus on right now?"
+            ),
+            "doc_id": req.doc_id,
+            "sources": [],
+            "mode": req.mode,
+        }
+
+    if intent == "time_estimate":
+        target = f"for this material ({req.doc_id})" if req.doc_id else f"for {req.subject or 'this topic'}"
+        return {
+            "response": (
+                f"⏱️ **Estimated Study & Completion Time {target}:**\n\n"
+                "Here is an efficient, research-backed study breakdown to master this without burnout:\n\n"
+                "| Phase | Recommended Activity | Estimated Time |\n"
+                "|---|---|---|\n"
+                "| **1. The Quick Skim** | Read headings, summaries, and key bold terms | **15 – 20 mins** |\n"
+                "| **2. Focused Learning** | Deep reading in 25-minute Pomodoro sprints | **45 – 60 mins** |\n"
+                "| **3. Active Recall** | Take a 5-question test in the **Quiz** tab | **15 – 20 mins** |\n"
+                "| **4. Mistake Review** | Review missed questions & simplify difficult points | **15 – 20 mins** |\n\n"
+                "💡 **Total Study Time:** **~1.5 to 2.5 hours** for thorough understanding.\n\n"
+                "**Pro-tip:** Don't cram in one sitting! Take a 5-minute break every 25 minutes to lock facts into long-term memory."
+            ),
+            "doc_id": req.doc_id,
+            "sources": [],
+            "mode": req.mode,
+        }
+
+    if intent == "study_simple":
+        return {
+            "response": (
+                "📚 **How to Study This in a Simple & Effective Way:**\n\n"
+                "You don't need to read and memorize everything at once. Use this proven **4-Step Simple Method**:\n\n"
+                "1. 🗺️ **Step 1: 10-Minute Big Picture Skim**\n"
+                "   - Flip through the document or topic headings. Build a quick mental map of the core ideas before diving into details.\n\n"
+                "2. 🍅 **Step 2: 25-Minute Focused Bites (Pomodoro)**\n"
+                "   - Read one concept at a time. After each section, ask yourself: *\"What is the one main takeaway here?\"* Write down one sentence in your own words.\n\n"
+                "3. 🧠 **Step 3: Test Yourself Early (Active Recall)**\n"
+                "   - Passive reading gives a false sense of confidence. Go to the **Quiz Generator** tab and test yourself immediately. Mistakes show you what to re-read.\n\n"
+                "4. 👶 **Step 4: The Feynman Simplification (ELI5)**\n"
+                "   - Explain the concept as if you were explaining it to a 10-year-old. If you get stuck on complex words, ask me: *\"Explain [concept] in simple terms!\"*\n\n"
+                "Would you like me to explain the core concept simply right now?"
+            ),
+            "doc_id": req.doc_id,
+            "sources": [],
+            "mode": req.mode,
+        }
 
     # --------------------------------------------------------------------------
     # Case A: Document Chat (RAG)

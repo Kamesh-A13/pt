@@ -376,3 +376,31 @@ def test_delete_all_user_data():
     # Verify session is empty
     tasks_res = client.get("/api/tasks", headers={"X-Session-ID": purge_session})
     assert len(tasks_res.json()["tasks"]) == 0
+
+
+# ---------------------------------------------------------------------------
+# 12. Conversational & Study Meta-Questions
+# ---------------------------------------------------------------------------
+
+def test_chat_conversational_greetings_and_study_advice():
+    # 1. Greeting
+    res_hi = client.post("/api/chat", json={"message": "Hi!"})
+    assert res_hi.status_code == 200
+    assert "Welcome to StudyOS AI" in res_hi.json()["response"]
+
+    # 2. Completion time estimate
+    res_time = client.post(
+        "/api/chat",
+        json={"message": "how much time will it take to complete?"},
+    )
+    assert res_time.status_code == 200
+    assert "Estimated Study & Completion Time" in res_time.json()["response"]
+
+    # 3. Simple study strategy
+    res_simple = client.post(
+        "/api/chat",
+        json={"message": "how to study it simple"},
+    )
+    assert res_simple.status_code == 200
+    assert "How to Study This in a Simple & Effective Way" in res_simple.json()["response"]
+

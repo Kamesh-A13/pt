@@ -65,11 +65,11 @@ export const ChatPage: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading])
 
-  const handleSend = async (e?: React.FormEvent) => {
+  const handleSend = async (e?: React.FormEvent, overrideText?: string) => {
     if (e) e.preventDefault()
-    if (!input.trim() || loading) return
+    const userText = (overrideText ?? input).trim()
+    if (!userText || loading) return
 
-    const userText = input.trim()
     setInput('')
     setError(null)
 
@@ -303,6 +303,28 @@ export const ChatPage: React.FC = () => {
             </div>
           )}
           <div ref={messagesEndRef} />
+        </div>
+
+        {/* Quick Suggested Conversation Starters */}
+        <div className="px-3 sm:px-4 py-2.5 bg-slate-100/80 border-t border-slate-200 flex items-center gap-2 overflow-x-auto text-xs">
+          <span className="text-slate-400 font-bold shrink-0 text-[11px] uppercase tracking-wider">Try:</span>
+          {[
+            { label: '👋 Hi!', prompt: 'Hi!' },
+            { label: '⏱️ How much time will it take?', prompt: 'How much time will it take to complete?' },
+            { label: '💡 How to study it simple?', prompt: 'How to study it simple?' },
+            { label: '📝 Key takeaways', prompt: 'What are the main key takeaways and core concepts?' },
+            { label: '👶 Explain simply (ELI5)', prompt: 'Explain the core concept in very simple terms' },
+          ].map((chip, idx) => (
+            <button
+              key={idx}
+              type="button"
+              disabled={loading}
+              onClick={() => handleSend(undefined, chip.prompt)}
+              className="shrink-0 px-2.5 py-1 rounded-full bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 hover:border-blue-300 font-medium transition-colors shadow-2xs disabled:opacity-50 cursor-pointer"
+            >
+              {chip.label}
+            </button>
+          ))}
         </div>
 
         {/* Chat Input Bar */}
