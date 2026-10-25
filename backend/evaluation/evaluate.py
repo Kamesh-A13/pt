@@ -16,7 +16,6 @@ Writes output to:
 
 import json
 import logging
-import os
 import sys
 import time
 from pathlib import Path
@@ -25,11 +24,11 @@ from pathlib import Path
 backend_dir = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(backend_dir))
 
-import numpy as np
-from app.services.embedder import get_embedder
-from app.services.llm_service import check_ollama_health, generate_mock_quiz, generate_text
-from app.services.retriever import ingest_document, retrieve
-from app.services.vector_store import VectorStore
+import numpy as np  # noqa: E402
+from app.services.embedder import get_embedder  # noqa: E402
+from app.services.llm_service import check_ollama_health, generate_mock_quiz, generate_text  # noqa: E402
+from app.services.retriever import ingest_document, retrieve  # noqa: E402
+from app.services.vector_store import VectorStore  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("evaluate")
@@ -302,7 +301,6 @@ Answer:"""
 
 def generate_markdown_report(results: dict, output_path: Path):
     m = results["metrics"]
-    ollama_ready = results["ollama_available"]
 
     report = f"""# StudyOS System Evaluation Report
 
