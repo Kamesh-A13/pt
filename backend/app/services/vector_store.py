@@ -87,11 +87,12 @@ class VectorStore:
         5. results = vs.search(query, k=5)   — retrieve top-k chunks
     """
 
-    def __init__(self, doc_id: str) -> None:
-        self.doc_id   = doc_id
-        self._index   = None   # faiss.IndexFlatIP
+    def __init__(self, doc_id: str, session_id: str | None = None) -> None:
+        self.doc_id     = doc_id
+        self.session_id = session_id
+        self._index     = None   # faiss.IndexFlatIP
         self._meta: list[ChunkMetadata] = []
-        self._embedder = get_embedder()
+        self._embedder  = get_embedder()
 
     # ------------------------------------------------------------------
     # Public API
@@ -120,7 +121,7 @@ class VectorStore:
         if len(metadata) != len(chunks):
             raise ValueError("metadata length must match chunks length")
 
-        logger.info("Embedding %d chunks for doc_id=%s", len(chunks), self.doc_id)
+        logger.info("Embedding %d chunks for doc_id=%s (session=%s)", len(chunks), self.doc_id, self.session_id)
         vectors = self._embedder.embed(chunks, show_progress=True)  # (N, dim)
 
         # Build or extend FAISS index
@@ -212,31 +213,35 @@ class VectorStore:
         return index_dir
 
     @classmethod
-    def load(cls, doc_id: str) -> "VectorStore":
+    def load(cls, doc_id: str, session_id: str | None = None) -> "VectorStore":
         """
         Restore a VectorStore from disk.
 
         Args:
             doc_id: The document ID used when the store was saved.
+            session_id: Optional session identifier for isolated directories.
 
         Returns:
             A fully populated VectorStore ready for search().
-
-        Raises:
-            FileNotFoundError: If no saved index exists for this doc_id.
         """
         import faiss
 
-        vs = cls(doc_id)
-        index_dir = vs._index_dir()
+        if session_id and (FAISS_INDEX_ROOT / session_id / doc_id / "index.faiss").exists():
+            vs = cls(doc_id, session_id=session_id)
+        elif (FAISS_INDEX_ROOT / doc_id / "index.faiss").exists():
+            vs = cls(doc_id, session_id=None)
+        elif session_id:
+            vs = cls(doc_id, session_id=session_id)
+        else:
+            vs = cls(doc_id)
 
+        index_dir = vs._index_dir()
         faiss_path = index_dir / "index.faiss"
         meta_path  = index_dir / "metadata.json"
 
         if not faiss_path.exists():
             raise FileNotFoundError(
-                f"No saved FAISS index for doc_id='{doc_id}' "
-                f"at {faiss_path}"
+                f"No saved FAISS index for doc_id='{doc_id}' at {faiss_path}"
             )
 
         vs._index = faiss.read_index(str(faiss_path))
@@ -246,16 +251,43 @@ class VectorStore:
         vs._meta = [ChunkMetadata(**m) for m in raw]
 
         logger.info(
-            "Loaded index (%d vectors) for doc_id=%s",
-            vs._index.ntotal, doc_id
+            "Loaded index (%d vectors) for doc_id=%s (session=%s)",
+            vs._index.ntotal, doc_id, vs.session_id,
         )
         return vs
 
     @classmethod
-    def exists(cls, doc_id: str) -> bool:
+    def exists(cls, doc_id: str, session_id: str | None = None) -> bool:
         """Return True if a saved index exists for this doc_id."""
-        path = FAISS_INDEX_ROOT / doc_id / "index.faiss"
-        return path.exists()
+        if session_id and (FAISS_INDEX_ROOT / session_id / doc_id / "index.faiss").exists():
+            return True
+        return (FAISS_INDEX_ROOT / doc_id / "index.faiss").exists()
+
+    @classmethod
+    def delete(cls, doc_id: str, session_id: str | None = None) -> bool:
+        """Delete saved FAISS index directory and metadata."""
+        import shutil
+        deleted = False
+        candidates = []
+        if session_id:
+            candidates.append(FAISS_INDEX_ROOT / session_id / doc_id)
+        candidates.append(FAISS_INDEX_ROOT / doc_id)
+
+        for path in candidates:
+            if path.exists():
+                shutil.rmtree(path)
+                deleted = True
+        return deleted
+
+    @classmethod
+    def delete_session(cls, session_id: str) -> bool:
+        """Delete all index directories belonging to a session."""
+        import shutil
+        session_path = FAISS_INDEX_ROOT / session_id
+        if session_path.exists():
+            shutil.rmtree(session_path)
+            return True
+        return False
 
     @property
     def size(self) -> int:
@@ -267,4 +299,6 @@ class VectorStore:
     # ------------------------------------------------------------------
 
     def _index_dir(self) -> Path:
+        if self.session_id:
+            return FAISS_INDEX_ROOT / self.session_id / self.doc_id
         return FAISS_INDEX_ROOT / self.doc_id
