@@ -1,0 +1,105 @@
+{
+  "timestamp": "2026-10-25T11:19:19Z",
+  "model": "llama3.2",
+  "ollama_available": true,
+  "sample_document": "sample.pdf",
+  "chunks_indexed": 3,
+  "metrics": {
+    "retrieval": {
+      "precision_at_1": 1.0,
+      "precision_at_3": 0.75,
+      "precision_at_5": 0.75,
+      "mean_retrieval_latency_ms": 68.83
+    },
+    "generation": {
+      "mean_answer_relevance": 0.7721,
+      "mean_faithfulness": 0.7578,
+      "mean_generation_latency_ms": 8975.91,
+      "mean_total_latency_ms": 9044.74
+    },
+    "quiz": {
+      "quiz_evaluated": true,
+      "total_questions": 3,
+      "valid_mcq_structure_percent": 100.0,
+      "latency_ms": 20398.61
+    }
+  },
+  "query_evaluations": [
+    {
+      "id": "q1",
+      "question": "What is the relationship between Artificial Intelligence and Machine Learning?",
+      "retrieval": {
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.667,
+        "precision_at_5": 0.667,
+        "latency_ms": 118.11,
+        "top_chunk_page": 1,
+        "top_chunk_score": 0.5443
+      },
+      "generation": {
+        "generated_answer": "Artificial Intelligence (AI) is the broader concept that encompasses Machine Learning (ML). Machine Learning is a subset of AI focused on designing systems that can learn and make decisions or predictions based on data, rather than being explicitly programmed.",
+        "expected_answer": "Artificial Intelligence is the broadest concept representing the simulation of human intelligence by computers, while Machine Learning is a subset of AI focused on systems that learn from data and make decisions without explicit programming.",
+        "relevance_score": 0.8703,
+        "faithfulness_score": 0.9286,
+        "latency_ms": 7958.74
+      }
+    },
+    {
+      "id": "q2",
+      "question": "How does the attention mechanism in Transformers work?",
+      "retrieval": {
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.667,
+        "precision_at_5": 0.667,
+        "latency_ms": 122.5,
+        "top_chunk_page": 2,
+        "top_chunk_score": 0.3267
+      },
+      "generation": {
+        "generated_answer": "## How the Attention Mechanism in Transformers Works\n\nThe attention mechanism in Transformers allows the model to look at words at other positions in the sequence to understand context. When the model processes a word, it uses \"attention\" to consider the importance of each word in the sequence for that particular word. This is achieved by the self-attention mechanism, which computes the weighted sum of the values of all the input elements to produce a weighted sum of all the input elements.\n\n## Key Components of the Attention Mechanism:\n\n*   **Query (Q)**: The query vector is used to compute the attention weights.\n*   **Key (K)**: The key vector is used to compute the attention weights.\n*   **Value (V)**: The value vector is used to compute the weighted sum of all the input elements.\n*   **Weighted Sum**: The weighted sum of the value vectors is computed using the attention weights.\n\n## How the Attention Mechanism Works:\n\n1.  **Compute Attention Weights**: The attention weights are computed using the dot product of the query and key vectors, divided by the square root of the key's dimensionality.\n2.  **Compute Weighted Sum**: The weighted sum of the value vectors is computed using the attention weights.\n3.  **Output**: The output of the attention mechanism is the weighted sum of the value vectors.\n\n## Example:\n\nSuppose we have a sequence of words: \"The quick brown fox\".\n*   **Query (Q)**: The query vector for the word \"fox\" is computed as the dot product of the word's embedding and the query vector.\n*   **Key (K)**: The key vector for the word \"fox\" is computed as the dot product of the word's embedding and the key vector.\n*   **Value (V)**: The value vector for the word \"fox\" is computed as the dot product of the word's embedding and the value vector.\n*   **Weighted Sum**: The weighted sum of the value vectors is computed using the attention weights.\n*   **Output**: The output of the attention mechanism is the weighted sum of the value vectors.\n\nThe attention mechanism allows the model to consider the importance of each word in the sequence for a particular word, enabling it to understand context and make informed decisions.",
+        "expected_answer": "Attention allows the model to look at words at other positions in the sequence to understand context, such as associating 'loves' with 'Alice' in a sentence.",
+        "relevance_score": 0.5448,
+        "faithfulness_score": 0.466,
+        "latency_ms": 16400.9
+      }
+    },
+    {
+      "id": "q3",
+      "question": "What are Variational Autoencoders (VAEs) and what are they used for?",
+      "retrieval": {
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.667,
+        "precision_at_5": 0.667,
+        "latency_ms": 30.16,
+        "top_chunk_page": 2,
+        "top_chunk_score": 0.3349
+      },
+      "generation": {
+        "generated_answer": "Variational Autoencoders (VAEs) are used for controllable generation and blending different styles. They encode data into a compressed \"latent space\" and decode it back.",
+        "expected_answer": "VAEs encode data into a compressed latent space and decode it back, and are used for controllable generation and blending different styles.",
+        "relevance_score": 0.9048,
+        "faithfulness_score": 1.0,
+        "latency_ms": 1062.27
+      }
+    },
+    {
+      "id": "q4",
+      "question": "What is the difference between Prompting and RAG?",
+      "retrieval": {
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "precision_at_5": 1.0,
+        "latency_ms": 4.54,
+        "top_chunk_page": 3,
+        "top_chunk_score": 0.1167
+      },
+      "generation": {
+        "generated_answer": "### Prompting vs RAG\n\n#### Prompting\n\n*   Guiding the model by giving it questions, instructions, or examples.\n*   Advanced techniques include Chain of Thought (CoT) and Tree of Thought (ToT).\n*   Purpose: To influence the model's output and encourage it to produce a desired response.\n\n#### RAG (Retrieval-Augmented Generation)\n\n*   Connects the AI to a database.\n*   When you ask a question, it searches the database for accurate documents.\n*   Adds those facts to your prompt.\n*   Generates a factual response.\n*   Purpose: To ensure the model produces accurate and reliable responses by leveraging a database of accurate information.\n\n### Key Differences\n\n*   **Purpose**: Prompting aims to influence the model's output, while RAG aims to ensure the model produces accurate and reliable responses.\n*   **Methodology**: Prompting involves providing questions, instructions, or examples, whereas RAG involves searching a database for accurate documents to add to the prompt.\n*   **Output**: Prompting can lead to a range of outputs, while RAG ensures the model generates factual responses based on the retrieved information.",
+        "expected_answer": "Prompting guides the model by providing instructions or examples, whereas Retrieval-Augmented Generation (RAG) retrieves relevant external document context and injects it into the prompt.",
+        "relevance_score": 0.7685,
+        "faithfulness_score": 0.6364,
+        "latency_ms": 10481.72
+      }
+    }
+  ]
+}

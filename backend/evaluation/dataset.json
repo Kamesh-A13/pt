@@ -1,0 +1,30 @@
+[
+  {
+    "id": "q1",
+    "question": "What is the relationship between Artificial Intelligence and Machine Learning?",
+    "expected_answer": "Artificial Intelligence is the broadest concept representing the simulation of human intelligence by computers, while Machine Learning is a subset of AI focused on systems that learn from data and make decisions without explicit programming.",
+    "expected_page": 1,
+    "keywords": ["Artificial Intelligence", "simulation of human intelligence", "Machine Learning", "subset of AI", "learn"]
+  },
+  {
+    "id": "q2",
+    "question": "How does the attention mechanism in Transformers work?",
+    "expected_answer": "Attention allows the model to look at words at other positions in the sequence to understand context, such as associating 'loves' with 'Alice' in a sentence.",
+    "expected_page": 2,
+    "keywords": ["attention", "words at other positions", "context", "sequence", "Encoder-Decoder"]
+  },
+  {
+    "id": "q3",
+    "question": "What are Variational Autoencoders (VAEs) and what are they used for?",
+    "expected_answer": "VAEs encode data into a compressed latent space and decode it back, and are used for controllable generation and blending different styles.",
+    "expected_page": 3,
+    "keywords": ["VAEs", "Variational Autoencoders", "latent space", "controllable generation", "blending"]
+  },
+  {
+    "id": "q4",
+    "question": "What is the difference between Prompting and RAG?",
+    "expected_answer": "Prompting guides the model by providing instructions or examples, whereas Retrieval-Augmented Generation (RAG) retrieves relevant external document context and injects it into the prompt.",
+    "expected_page": 3,
+    "keywords": ["Prompting", "guiding the model", "RAG", "retrieval", "context"]
+  }
+]
