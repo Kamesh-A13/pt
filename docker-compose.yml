@@ -1,16 +1,18 @@
 version: "3.9"
 
 # ---------------------------------------------------------------------------
-# Smart Revision Generator — Docker Compose
+# StudyOS — AI-Powered Student Assistant (Docker Compose)
 #
 # Usage:
-#   docker compose up --build          # first time / after code changes
-#   docker compose up                  # subsequent runs (uses cached images)
-#   docker compose down                # stop and remove containers
+#   docker compose up --build          # build & run local services
+#   docker compose up                  # run with existing images
+#   docker compose down                # stop containers
 #   docker compose logs -f backend     # tail backend logs
 #
-# Environment:
-#   Copy .env.example to .env and fill in GOOGLE_API_KEY before running.
+# Ollama:
+#   By default, the backend connects to your host machine's Ollama instance
+#   at http://host.docker.internal:11434. Ensure Ollama is running on your host
+#   (e.g., `ollama serve` and `ollama pull llama3.2`).
 # ---------------------------------------------------------------------------
 
 services:
@@ -22,50 +24,72 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: srg_backend
+    container_name: studyos_backend
     restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
-      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
-      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-pro}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2}
+      - DATABASE_PATH=/app/data/studyos.db
+      - FAISS_INDEX_ROOT=/app/faiss_index
       - PYTHONUNBUFFERED=1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
-      # Hot-reload: mount source so uvicorn --reload picks up changes
       - ./backend:/app
+      - backend_data:/app/data
+      - backend_faiss:/app/faiss_index
     networks:
-      - srg_net
+      - studyos_net
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 15s
 
   # --------------------------------------------------------------------------
-  # Frontend — Vite dev server (React)
+  # Frontend — React / Vite
   # --------------------------------------------------------------------------
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: srg_frontend
+    container_name: studyos_frontend
     restart: unless-stopped
     ports:
       - "5173:5173"
     environment:
       - VITE_API_URL=http://localhost:8000
     volumes:
-      # Hot-reload: mount source so Vite HMR works
       - ./frontend:/app
-      # Prevent host node_modules from overwriting container's
       - /app/node_modules
     networks:
-      - srg_net
+      - studyos_net
     depends_on:
       backend:
         condition: service_healthy
 
+  # --------------------------------------------------------------------------
+  # Optional: Ollama in Docker (uncomment if you wish to run Ollama in a container)
+  # --------------------------------------------------------------------------
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: studyos_ollama
+  #   restart: unless-stopped
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_models:/root/.ollama
+  #   networks:
+  #     - studyos_net
+
+volumes:
+  backend_data:
+  backend_faiss:
+  # ollama_models:
+
 networks:
-  srg_net:
+  studyos_net:
     driver: bridge
