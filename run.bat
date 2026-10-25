@@ -124,7 +124,7 @@ if not exist "venv\Scripts\activate.bat" (
 )
 
 echo [*] Launching FastAPI Backend on http://localhost:8000...
-start "StudyOS Backend" cmd /k "title StudyOS Backend && cd /d "%~dp0backend" && call venv\Scripts\activate.bat && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+start "StudyOS Backend" cmd /c "%~dp0backend\run_backend.bat"
 
 :: ------------------------------------------------------------------
 :: 4. Start Frontend (Vite on Port 5173)
@@ -148,7 +148,7 @@ if not exist "node_modules\" (
 )
 
 echo [*] Launching Vite Frontend on http://localhost:5173...
-start "StudyOS Frontend" cmd /k "title StudyOS Frontend && cd /d "%~dp0frontend" && npm run dev"
+start "StudyOS Frontend" cmd /c "%~dp0frontend\run_frontend.bat"
 
 :: ------------------------------------------------------------------
 :: 5. Open Default Browser
