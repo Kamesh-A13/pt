@@ -69,3 +69,11 @@ logs/
 # Uploads
 uploads/
 temp/
+
+# App Data & FAISS
+faiss_index/
+data/
+*.db
+backend/venv/
+backend/data/
+
