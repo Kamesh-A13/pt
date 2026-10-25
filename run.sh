@@ -30,8 +30,18 @@ else
         ollama serve > /dev/null 2>&1 &
         sleep 3
     else
-        echo "❌ Ollama not found. Please install it from https://ollama.com"
-        exit 1
+        echo "⚠️ Ollama is not installed on your system."
+        echo "📦 Installing Ollama automatically..."
+        if command -v brew > /dev/null 2>&1; then
+            echo "--> Installing via Homebrew..."
+            brew install ollama
+        else
+            echo "--> Installing via official script (https://ollama.com/install.sh)..."
+            curl -fsSL https://ollama.com/install.sh | sh
+        fi
+        echo "--> Launching Ollama server..."
+        ollama serve > /dev/null 2>&1 &
+        sleep 4
     fi
 fi
 
