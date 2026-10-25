@@ -1,6 +1,6 @@
 import pytest
 import os
-from app.services.parser import parse_pdf, parse_docx, parse_pptx, parse_document
+from app.services.parser import parse_pdf, parse_document
 from app.utils.file_utils import validate_file
 from fastapi import HTTPException
 

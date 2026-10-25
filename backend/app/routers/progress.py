@@ -4,11 +4,9 @@ Strict rule: Only return real stored data; never show fake or fabricated numbers
 """
 
 from typing import Any, Dict, List, Optional
-from datetime import datetime
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from sqlalchemy import func
 
 from app.database import get_db
 from app.models import Task, QuizResult, StudyPlan, DocumentRecord

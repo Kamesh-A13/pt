@@ -1,8 +1,9 @@
+import os
+from typing import List
 import fitz                        # PyMuPDF
 from pptx import Presentation
 from docx import Document
 from fastapi import HTTPException
-import os
 
 def parse_pdf(file_bytes: bytes) -> str:
     """Extract all text from a PDF."""
@@ -63,8 +64,6 @@ def parse_document(filename: str, file_bytes: bytes) -> str:
         raise HTTPException(status_code=400, detail=f"Unsupported file type: {ext}")
 
     return parsers[ext](file_bytes)
-
-from typing import List
 
 
 def parse_pdf_chunks(file_bytes: bytes) -> List[str]:

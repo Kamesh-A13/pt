@@ -2,7 +2,7 @@
 tasks.py — Task management endpoints with deadlines and status tracking.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel
@@ -43,16 +43,16 @@ def list_tasks(
 ):
     """List tasks for the current anonymous session."""
     query = db.query(Task).filter(Task.session_id == session_id)
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
 
     if status == "completed":
-        query = query.filter(Task.completed == True)
+        query = query.filter(Task.completed.is_(True))
     elif status == "pending":
-        query = query.filter(Task.completed == False)
+        query = query.filter(Task.completed.is_(False))
     elif status == "overdue":
-        query = query.filter(Task.completed == False, Task.deadline != None, Task.deadline < now)
+        query = query.filter(Task.completed.is_(False), Task.deadline.is_not(None), Task.deadline < now)
     elif status == "upcoming":
-        query = query.filter(Task.completed == False, Task.deadline != None, Task.deadline >= now)
+        query = query.filter(Task.completed.is_(False), Task.deadline.is_not(None), Task.deadline >= now)
 
     tasks = query.order_by(Task.deadline.asc().nullslast(), Task.created_at.desc()).all()
 
@@ -143,9 +143,9 @@ def update_task(
 
     if task_in.completed is not None:
         task.completed = task_in.completed
-        task.completed_at = datetime.utcnow() if task_in.completed else None
+        task.completed_at = datetime.now(timezone.utc).replace(tzinfo=None) if task_in.completed else None
 
-    task.updated_at = datetime.utcnow()
+    task.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
     db.commit()
     db.refresh(task)
 
@@ -171,8 +171,8 @@ def toggle_task(
         raise HTTPException(status_code=404, detail="Task not found")
 
     task.completed = not task.completed
-    task.completed_at = datetime.utcnow() if task.completed else None
-    task.updated_at = datetime.utcnow()
+    task.completed_at = datetime.now(timezone.utc).replace(tzinfo=None) if task.completed else None
+    task.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
     db.commit()
     db.refresh(task)
 

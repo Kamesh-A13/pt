@@ -17,7 +17,6 @@ from typing import Any
 import httpx
 from dotenv import load_dotenv
 from fastapi import HTTPException
-from pydantic import ValidationError
 
 from app.services.prompts import SYSTEM_PROMPT, build_prompt
 

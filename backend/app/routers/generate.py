@@ -16,7 +16,6 @@ from app.services.llm_service import (
     generate_flashcards,
     generate_json,
     generate_mock_quiz,
-    generate_summary,
     generate_text,
 )
 

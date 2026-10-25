@@ -4,15 +4,19 @@ models.py — SQLAlchemy ORM models for structured data.
 All models use session_id for data isolation between anonymous users.
 """
 
-import datetime
+from datetime import datetime, timezone
 import uuid
 
-from sqlalchemy import Column, DateTime, Float, Integer, String, Text, Boolean, JSON
+from sqlalchemy import Boolean, Column, DateTime, Float, Integer, JSON, String, Text
 from app.database import Base
 
 
 def _uuid() -> str:
     return str(uuid.uuid4())
+
+
+def _now() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 class Task(Base):
@@ -26,8 +30,8 @@ class Task(Base):
     deadline = Column(DateTime, nullable=True)
     completed = Column(Boolean, default=False)
     completed_at = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=_now)
+    updated_at = Column(DateTime, default=_now, onupdate=_now)
 
 
 class QuizResult(Base):
@@ -44,7 +48,7 @@ class QuizResult(Base):
     correct_answers = Column(Integer, default=0)
     score_percent = Column(Float, default=0.0)
     questions_data = Column(JSON, nullable=True)  # Full quiz Q&A for review
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=_now)
 
 
 class StudyPlan(Base):
@@ -58,7 +62,7 @@ class StudyPlan(Base):
     daily_hours = Column(Float, default=4.0)
     topics = Column(JSON, nullable=True)
     plan_data = Column(JSON, nullable=True)  # The generated plan
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=_now)
 
 
 class DocumentRecord(Base):
@@ -71,4 +75,4 @@ class DocumentRecord(Base):
     filename = Column(String, nullable=False)
     char_count = Column(Integer, default=0)
     word_count = Column(Integer, default=0)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=_now)

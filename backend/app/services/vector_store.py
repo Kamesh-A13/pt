@@ -32,7 +32,6 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
-import numpy as np
 
 from app.services.embedder import get_embedder
 

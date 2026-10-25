@@ -4,7 +4,7 @@ Generates realistic study schedules based on subjects, exam dates, daily hours, 
 """
 
 from typing import Dict, List, Optional
-from datetime import datetime, date
+from datetime import datetime
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session

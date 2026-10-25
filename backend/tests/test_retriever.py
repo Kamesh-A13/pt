@@ -8,13 +8,10 @@ Run with:
 
 import shutil
 import uuid
-from pathlib import Path
 
 import pytest
 
 from app.services.retriever import (
-    CHUNK_OVERLAP,
-    CHUNK_SIZE,
     _sliding_window_chunks,
     ingest_document,
     retrieve,
